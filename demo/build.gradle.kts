@@ -11,7 +11,7 @@ plugins {
 }
 
 compose.resources {
-    packageOfResClass = "com.composables.ui.demo.generated.resources"
+    packageOfResClass = "dev.dac114514.starter.generated.resources"
 }
 
 java {
@@ -74,11 +74,11 @@ kotlin {
 }
 
 android {
-    namespace = "com.composables.ui.demo"
+    namespace = "dev.dac114514.starter"
     compileSdk = libs.versions.android.compile.sdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.composables.ui.demo"
+        applicationId = "dev.dac114514.starter"
         minSdk = libs.versions.android.min.sdk.get().toInt()
         targetSdk = libs.versions.android.compile.sdk.get().toInt()
         versionCode = 1
@@ -88,7 +88,7 @@ android {
 
 compose.desktop {
     application {
-        mainClass = "com.composables.ui.demo.MainKt"
+        mainClass = "dev.dac114514.starter.MainKt"
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

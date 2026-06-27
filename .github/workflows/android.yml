@@ -1,0 +1,26 @@
+name: Android build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  android:
+    name: Build :demo (assembleDebug)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          token: ${{ github.token }}
+      - uses: gradle/actions/setup-gradle@v5
+      - name: Assemble debug APK
+        run: ./gradlew :demo:assembleDebug --no-configuration-cache

@@ -38,7 +38,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "composables-ui"
+rootProject.name = "android-starter"
 
 include(":ui")
 include(":demo")
