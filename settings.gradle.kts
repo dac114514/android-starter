@@ -41,7 +41,7 @@ dependencyResolutionManagement {
 rootProject.name = "android-starter"
 
 include(":ui")
-include(":demo")
+include(":app")
 include(":preview")
 include(":preview-insets")
 include(":sample")

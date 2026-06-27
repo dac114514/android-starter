@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-PACKAGE_NAME="com.composables.ui.demo"
+PACKAGE_NAME="dev.dac114514.starter"
 ACTIVITY_NAME=".MainActivity"
 
 if ! command -v adb >/dev/null 2>&1; then
@@ -16,8 +16,8 @@ if [ -z "${device_id}" ]; then
   exit 1
 fi
 
-echo "Installing demo app on ${device_id}..."
-./gradlew :demo:installDebug
+echo "Installing app on ${device_id}..."
+./gradlew :app:installDebug
 
 echo "Launching demo app..."
 adb -s "${device_id}" shell am start -n "${PACKAGE_NAME}/${ACTIVITY_NAME}" >/dev/null

@@ -225,13 +225,13 @@ tasks.register<Sync>("bundleDocs") {
     group = "documentation"
     description = "Bundles Composables UI docs and the demo web app."
 
-    dependsOn(":demo:wasmJsBrowserDistribution")
+    dependsOn(":app:wasmJsBrowserDistribution")
     dependsOn(generateDocsApiReference)
     dependsOn(generateDocsDemoSources)
     dependsOn(generateDocsComponentSources)
 
     val bundleDirectory = layout.buildDirectory.dir("docs-bundle/ui")
-    val demoDistribution = project(":demo").layout.buildDirectory.dir("dist/wasmJs/productionExecutable")
+    val demoDistribution = project(":app").layout.buildDirectory.dir("dist/wasmJs/productionExecutable")
 
     inputs.file(docsSourcesFile)
 
