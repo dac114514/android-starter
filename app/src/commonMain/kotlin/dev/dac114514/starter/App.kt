@@ -104,8 +104,9 @@ fun setColorScheme(scheme: ColorScheme) {
 
 @Composable
 fun App() {
+    val theme = paperTheme(dark = appColorScheme == ColorScheme.Dark)
     CompositionLocalProvider(LocalColorScheme provides appColorScheme) {
-        paperTheme(dark = appColorScheme == ColorScheme.Dark) {
+        theme {
             HomeScreen(
                 colorScheme = appColorScheme,
                 onColorSchemeChange = ::setColorScheme,
