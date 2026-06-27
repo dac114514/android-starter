@@ -45,11 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.composables.icons.lucide.Bell
 import com.composables.icons.lucide.ChevronDown
+import com.composables.icons.lucide.EllipsisVertical
 import com.composables.icons.lucide.Eye
 import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
 import com.composables.icons.lucide.MessageCircle
-import com.composables.icons.lucide.MoreVertical
 import com.composables.icons.lucide.Send
 import com.composables.icons.lucide.Settings
 import com.composables.icons.lucide.Trash2
@@ -268,7 +268,7 @@ fun ChatScreen(
                 style = ButtonStyle.Ghost,
             ) {
                 Icon(
-                    imageVector = Lucide.MoreVertical,
+                    imageVector = Lucide.EllipsisVertical,
                     contentDescription = "More options",
                     modifier = Modifier.size(20.dp),
                 )
