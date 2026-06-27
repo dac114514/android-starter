@@ -14,21 +14,28 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.composables.ui.components.BottomSheet
+import com.composables.ui.components.BottomSheetDetent
 import com.composables.ui.components.Button
 import com.composables.ui.components.ButtonStyle
 import com.composables.ui.components.Switch
 import com.composables.ui.components.Text
 import com.composables.ui.components.TextField
+import com.composables.ui.components.rememberBottomSheetState
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen() {
     val nameState = rememberTextFieldState()
     var notificationsEnabled by remember { mutableStateOf(true) }
+    val sheetState = rememberBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier
@@ -59,6 +66,28 @@ fun HomeScreen() {
             style = ButtonStyle.Primary,
         ) {
             Text("Get started", fontWeight = FontWeight.Medium)
+        }
+        Button(
+            onClick = { scope.launch { sheetState.show() } },
+            style = ButtonStyle.Outlined,
+        ) {
+            Text("Show drawer")
+        }
+    }
+
+    BottomSheet(
+        state = sheetState,
+        onDismissRequest = { scope.launch { sheetState.hide() } },
+    ) {
+        Text("Quick actions", fontWeight = FontWeight.SemiBold)
+        Text("Account")
+        Text("Settings")
+        Text("Help & feedback")
+        Button(
+            onClick = { scope.launch { sheetState.hide() } },
+            style = ButtonStyle.Ghost,
+        ) {
+            Text("Close")
         }
     }
 }
