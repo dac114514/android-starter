@@ -5,16 +5,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.android.kotlin.multiplatform.library)
-    alias(libs.plugins.maven.publish)
 }
-
-val publishGroupId = "com.composables"
-val publishVersion = libs.versions.ui.get()
-val projectUrl = "https://composables.com/ui"
-val githubUrl = "github.com/composablehorizons/ui"
-val pomArtifactId = "ui"
-val pomName = "Composables UI Components"
-val pomDescription = "Modern accessible components for Jetpack Compose and Compose Multiplatform."
 
 java {
     toolchain {
@@ -50,53 +41,5 @@ kotlin {
     }
 }
 
-group = publishGroupId
-version = publishVersion
-
-mavenPublishing {
-    publishToMavenCentral(automaticRelease = true, validateDeployment = false)
-
-    if (providers.gradleProperty("signingInMemoryKey").orNull?.isNotBlank() == true) {
-        signAllPublications()
-    }
-
-    coordinates(
-        groupId = publishGroupId,
-        artifactId = pomArtifactId,
-        version = publishVersion,
-    )
-
-    pom {
-        name.set(pomName)
-        description.set(pomDescription)
-        url.set(projectUrl)
-
-        licenses {
-            license {
-                name.set("MIT License")
-                url.set("https://$githubUrl/blob/main/LICENSE")
-            }
-        }
-
-        issueManagement {
-            system.set("GitHub Issues")
-            url.set("https://$githubUrl/issues")
-        }
-
-        developers {
-            developer {
-                id.set("composablehorizons")
-                name.set("Composable Horizons")
-                email.set("1665273+alexstyl@users.noreply.github.com")
-                organization.set("Composable Horizons")
-                organizationUrl.set("https://composables.com")
-            }
-        }
-
-        scm {
-            connection.set("scm:git:https://$githubUrl.git")
-            developerConnection.set("scm:git:ssh://git@$githubUrl.git")
-            url.set("https://$githubUrl/tree/main")
-        }
-    }
-}
+group = "dev.dac114514.starter"
+version = "0.1.0"
