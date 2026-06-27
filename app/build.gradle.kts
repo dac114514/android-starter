@@ -1,7 +1,4 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -25,26 +22,6 @@ kotlin {
         languageVersion = JavaLanguageVersion.of(17)
     }
 
-    jvm()
-
-    wasmJs {
-        browser {
-            val rootDirPath = project.rootDir.path
-            val projectDirPath = project.projectDir.path
-            commonWebpackConfig {
-                outputFileName = "composeApp.js"
-
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        add(rootDirPath)
-                        add(projectDirPath)
-                    }
-                }
-            }
-        }
-        binaries.executable()
-    }
-
     androidTarget {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
@@ -61,12 +38,6 @@ kotlin {
             implementation(libs.compose.components.resources)
         }
 
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs) {
-                exclude("org.jetbrains.compose.material")
-                exclude("org.jetbrains.compose.material3")
-            }
-        }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
         }
@@ -83,17 +54,5 @@ android {
         targetSdk = libs.versions.android.compile.sdk.get().toInt()
         versionCode = 1
         versionName = "1.0.0"
-    }
-}
-
-compose.desktop {
-    application {
-        mainClass = "dev.dac114514.starter.MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "composables-ui-demo"
-            packageVersion = "1.0.0"
-        }
     }
 }
