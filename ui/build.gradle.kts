@@ -1,6 +1,3 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -37,13 +34,6 @@ kotlin {
 
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
-        }
-    }
-
-    listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposablesUI"
-            isStatic = true
         }
     }
 
