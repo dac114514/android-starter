@@ -217,7 +217,7 @@ fun BottomSheetFormExample() {
                         )
                     },
                 )
-// … truncated; full example at app/src/commonMain/kotlin/dev/dac114514/starter/examples/BottomSheetFormExample.kt
+// … truncated; full example at examples/src/main/kotlin/dev/dac114514/starter/examples/BottomSheetFormExample.kt
 ```
 
 ## Button
@@ -475,7 +475,7 @@ fun DropdownMenuExample() {
                             imageVector = Lucide.Moon,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
-// … truncated; full example at app/src/commonMain/kotlin/dev/dac114514/starter/examples/DropdownMenuExample.kt
+// … truncated; full example at examples/src/main/kotlin/dev/dac114514/starter/examples/DropdownMenuExample.kt
 ```
 
 ## Icon

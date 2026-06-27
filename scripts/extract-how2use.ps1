@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 # --- Paths ---
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $componentsDir = Join-Path $repoRoot 'ui\src\commonMain\kotlin\com\composables\ui\components'
-$examplesDir = Join-Path $repoRoot 'app\src\commonMain\kotlin\dev\dac114514\starter\examples'
+$examplesDir = Join-Path $repoRoot 'examples\src\main\kotlin\dev\dac114514\starter\examples'
 $outputFile = Join-Path $repoRoot 'HOW2USE.md'
 
 if (-not (Test-Path $componentsDir)) { throw "Components dir not found: $componentsDir" }
