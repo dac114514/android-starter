@@ -42,6 +42,3 @@ rootProject.name = "android-starter"
 
 include(":ui")
 include(":app")
-include(":preview")
-include(":preview-insets")
-include(":sample")
