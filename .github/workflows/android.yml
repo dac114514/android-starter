@@ -24,3 +24,14 @@ jobs:
       - uses: gradle/actions/setup-gradle@v5
       - name: Assemble debug APK
         run: ./gradlew :demo:assembleDebug --no-configuration-cache
+
+      - name: List APK output
+        run: ls -la demo/build/outputs/apk/debug/
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: demo/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
