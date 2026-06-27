@@ -1,6 +1,7 @@
 package dev.dac114514.starter
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -43,13 +45,14 @@ import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.composables.icons.lucide.Bell
 import com.composables.icons.lucide.ChevronDown
-import com.composables.icons.lucide.EllipsisVertical
-import com.composables.icons.lucide.Eye
+import com.composables.icons.lucide.File
+import com.composables.icons.lucide.Image
 import com.composables.icons.lucide.Info
 import com.composables.icons.lucide.Lucide
+import com.composables.icons.lucide.MapPin
 import com.composables.icons.lucide.MessageCircle
+import com.composables.icons.lucide.Plus
 import com.composables.icons.lucide.Send
 import com.composables.icons.lucide.Settings
 import com.composables.icons.lucide.Trash2
@@ -62,6 +65,12 @@ import com.composables.ui.components.Checkbox
 import com.composables.ui.components.Disclosure
 import com.composables.ui.components.DisclosureButton
 import com.composables.ui.components.DisclosurePanel
+import com.composables.ui.components.DropdownMenu
+import com.composables.ui.components.DropdownMenuAlignment
+import com.composables.ui.components.DropdownMenuItem
+import com.composables.ui.components.DropdownMenuItemStyle
+import com.composables.ui.components.DropdownMenuPanel
+import com.composables.ui.components.DropdownMenuSide
 import com.composables.ui.components.HorizontalSeparator
 import com.composables.ui.components.Icon
 import com.composables.ui.components.IconButton
@@ -79,11 +88,16 @@ import com.composables.ui.components.Tooltip
 import com.composables.ui.components.TooltipPanel
 import com.composables.ui.components.TriStateCheckbox
 import com.composables.ui.components.rememberBottomSheetState
+import com.composables.ui.theme.ColorScheme
 import com.composables.ui.theme.colors
 import com.composables.ui.theme.controlColor
+import com.composables.ui.theme.destructiveColor
 import com.composables.ui.theme.mutedColor
+import com.composables.ui.theme.onPrimaryColor
+import com.composables.ui.theme.onSecondaryColor
 import com.composables.ui.theme.panelColor
 import com.composables.ui.theme.primaryColor
+import com.composables.ui.theme.secondaryColor
 import com.composeunstyled.theme.Theme
 import kotlinx.coroutines.launch
 
@@ -113,7 +127,10 @@ private val sampleConversation: List<ChatMessage> = listOf(
 )
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    colorScheme: ColorScheme,
+    onColorSchemeChange: (ColorScheme) -> Unit,
+) {
     var selectedTab by remember { mutableStateOf(0) }
     val messages = remember { sampleConversation.toMutableStateList() }
     val listState = rememberLazyListState()
@@ -123,7 +140,6 @@ fun HomeScreen() {
     var marketing by remember { mutableStateOf(true) }
     var product by remember { mutableStateOf(false) }
     var security by remember { mutableStateOf(true) }
-    var themeChoice by remember { mutableStateOf("Dark") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -152,8 +168,8 @@ fun HomeScreen() {
                     onProductChange = { product = it },
                     security = security,
                     onSecurityChange = { security = it },
-                    themeChoice = themeChoice,
-                    onThemeChoiceChange = { themeChoice = it },
+                    colorScheme = colorScheme,
+                    onColorSchemeChange = onColorSchemeChange,
                     onDeleteAll = { showDeleteDialog = true },
                 )
             }
@@ -227,7 +243,9 @@ fun ChatScreen(
 ) {
     val draft = rememberTextFieldState()
     val scope = rememberCoroutineScope()
-    val overflowSheet = rememberBottomSheetState()
+    var menuFor by remember { mutableStateOf<Long?>(null) }
+    val activeMessage = menuFor?.let { id -> messages.firstOrNull { it.id == id } }
+    val attachmentSheet = rememberBottomSheetState()
 
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
@@ -235,164 +253,205 @@ fun ChatScreen(
         }
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text("Chat", fontSize = 22.sp, fontWeight = FontWeight.SemiBold)
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    modifier = Modifier.padding(top = 2.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(Theme[colors][primaryColor]),
-                    )
-                    Text(
-                        text = "Online · 2 members",
-                        fontSize = 12.sp,
-                        color = Theme[colors][mutedColor],
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                state = listState,
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(messages, key = { it.id }) { message ->
+                    MessageBubble(
+                        message = message,
+                        textSize = textSize,
+                        onLongPress = { menuFor = message.id },
                     )
                 }
             }
-            IconButton(
-                onClick = { scope.launch { overflowSheet.show() } },
-                style = ButtonStyle.Ghost,
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Icon(
-                    imageVector = Lucide.EllipsisVertical,
-                    contentDescription = "More options",
-                    modifier = Modifier.size(20.dp),
+                TextField(
+                    state = draft,
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Message") },
                 )
-            }
-        }
-
-        HorizontalSeparator()
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            state = listState,
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            items(messages, key = { it.id }) { message ->
-                MessageBubble(message = message, textSize = textSize)
-            }
-        }
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            TextField(
-                state = draft,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Message") },
-            )
-            IconButton(
-                onClick = {
-                    val text = draft.text.toString().trim()
-                    if (text.isNotEmpty()) {
-                        val newId = (messages.maxOfOrNull { it.id } ?: 0L) + 1L
-                        messages.add(
-                            ChatMessage(
-                                id = newId,
-                                sender = "You",
-                                content = text,
-                                timestamp = "now",
-                                isFromMe = true,
-                            )
+                val hasText = draft.text.toString().isNotBlank()
+                if (hasText) {
+                    IconButton(
+                        onClick = {
+                            val text = draft.text.toString().trim()
+                            if (text.isNotEmpty()) {
+                                val newId = (messages.maxOfOrNull { it.id } ?: 0L) + 1L
+                                messages.add(
+                                    ChatMessage(
+                                        id = newId,
+                                        sender = "You",
+                                        content = text,
+                                        timestamp = "now",
+                                        isFromMe = true,
+                                    )
+                                )
+                                draft.edit { replace(0, length, "") }
+                            }
+                        },
+                        style = ButtonStyle.Primary,
+                    ) {
+                        Icon(
+                            imageVector = Lucide.Send,
+                            contentDescription = "Send",
+                            modifier = Modifier.size(20.dp),
                         )
-                        draft.edit { replace(0, length, "") }
                     }
-                },
-                style = ButtonStyle.Primary,
-            ) {
-                Icon(
-                    imageVector = Lucide.Send,
-                    contentDescription = "Send",
-                    modifier = Modifier.size(20.dp),
-                )
+                } else {
+                    IconButton(
+                        onClick = { scope.launch { attachmentSheet.show() } },
+                        style = ButtonStyle.Ghost,
+                    ) {
+                        Icon(
+                            imageVector = Lucide.Plus,
+                            contentDescription = "Attach",
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
             }
         }
-    }
 
-    BottomSheet(
-        state = overflowSheet,
-        onDismissRequest = { scope.launch { overflowSheet.hide() } },
-        toolbar = { Text("Conversation", fontWeight = FontWeight.SemiBold) },
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            BottomSheetAction(icon = Lucide.Bell, label = "Mute notifications") {
-                scope.launch { overflowSheet.hide() }
-            }
-            BottomSheetAction(icon = Lucide.Eye, label = "Search messages") {
-                scope.launch { overflowSheet.hide() }
-            }
-            BottomSheetAction(icon = Lucide.UserPlus, label = "Add member") {
-                scope.launch { overflowSheet.hide() }
+        DropdownMenu(
+            expanded = activeMessage != null,
+            onExpandedChange = { menuFor = null },
+            side = DropdownMenuSide.Bottom,
+            alignment = DropdownMenuAlignment.Start,
+            panel = {
+                DropdownMenuPanel {
+                    DropdownMenuItem(
+                        onClick = { menuFor = null },
+                    ) {
+                        Text("Copy")
+                    }
+                    DropdownMenuItem(
+                        onClick = { menuFor = null },
+                    ) {
+                        Text("Reply")
+                    }
+                    DropdownMenuItem(
+                        onClick = { menuFor = null },
+                    ) {
+                        Text("Edit")
+                    }
+                    DropdownMenuItem(
+                        onClick = {
+                            activeMessage?.let { messages.remove(it) }
+                            menuFor = null
+                        },
+                        style = DropdownMenuItemStyle.Destructive,
+                    ) {
+                        Text("Delete")
+                    }
+                }
+            },
+            anchor = { Spacer(Modifier.size(0.dp)) },
+        )
+
+        BottomSheet(
+            state = attachmentSheet,
+            onDismissRequest = { scope.launch { attachmentSheet.hide() } },
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                BottomSheetAction(icon = Lucide.Image, label = "Photo") {
+                    scope.launch { attachmentSheet.hide() }
+                }
+                BottomSheetAction(icon = Lucide.File, label = "File") {
+                    scope.launch { attachmentSheet.hide() }
+                }
+                BottomSheetAction(icon = Lucide.MapPin, label = "Location") {
+                    scope.launch { attachmentSheet.hide() }
+                }
+                BottomSheetAction(icon = Lucide.UserPlus, label = "Contact") {
+                    scope.launch { attachmentSheet.hide() }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun MessageBubble(message: ChatMessage, textSize: Float) {
+private fun MessageBubble(
+    message: ChatMessage,
+    textSize: Float,
+    onLongPress: () -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (message.isFromMe) Arrangement.End else Arrangement.Start,
+        verticalAlignment = Alignment.Bottom,
     ) {
+        if (!message.isFromMe) {
+            AvatarCircle(letter = message.sender.first().uppercaseChar())
+            Spacer(Modifier.width(8.dp))
+        }
         Column(
-            modifier = Modifier.widthIn(max = 320.dp),
+            modifier = Modifier
+                .widthIn(max = 320.dp)
+                .combinedClickable(onClick = {}, onLongClick = onLongPress)
+                .clip(RoundedCornerShape(20.dp))
+                .background(
+                    if (message.isFromMe) Theme[colors][primaryColor]
+                    else Theme[colors][secondaryColor]
+                )
+                .padding(horizontal = 14.dp, vertical = 10.dp),
             horizontalAlignment = if (message.isFromMe) Alignment.End else Alignment.Start,
         ) {
             if (!message.isFromMe) {
                 Text(
-                    text = "${message.sender} · ${message.timestamp}",
-                    fontSize = (11f * textSize).sp,
-                    color = Theme[colors][mutedColor],
+                    text = message.sender,
+                    fontSize = (12f * textSize).sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Theme[colors][onSecondaryColor],
                 )
                 Spacer(Modifier.height(2.dp))
             }
-            val shape = RoundedCornerShape(
-                topStart = 12.dp,
-                topEnd = 12.dp,
-                bottomStart = if (message.isFromMe) 12.dp else 2.dp,
-                bottomEnd = if (message.isFromMe) 2.dp else 12.dp,
+            Text(
+                text = message.content,
+                fontSize = (14f * textSize).sp,
+                color = if (message.isFromMe) Theme[colors][onPrimaryColor]
+                else Theme[colors][onSecondaryColor],
             )
-            Box(
-                modifier = Modifier
-                    .clip(shape)
-                    .background(Theme[colors][controlColor])
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-            ) {
-                Text(
-                    text = message.content,
-                    fontSize = (14f * textSize).sp,
-                )
-            }
-            if (message.isFromMe) {
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    text = message.timestamp,
-                    fontSize = (11f * textSize).sp,
-                    color = Theme[colors][mutedColor],
-                )
-            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = message.timestamp,
+                fontSize = (10f * textSize).sp,
+                color = if (message.isFromMe) Theme[colors][onPrimaryColor]
+                else Theme[colors][onSecondaryColor],
+            )
         }
+    }
+}
+
+@Composable
+private fun AvatarCircle(letter: Char) {
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .background(Theme[colors][secondaryColor]),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = letter.toString(),
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = Theme[colors][onSecondaryColor],
+        )
     }
 }
 
@@ -410,8 +469,8 @@ fun SettingsScreen(
     onProductChange: (Boolean) -> Unit,
     security: Boolean,
     onSecurityChange: (Boolean) -> Unit,
-    themeChoice: String,
-    onThemeChoiceChange: (String) -> Unit,
+    colorScheme: ColorScheme,
+    onColorSchemeChange: (ColorScheme) -> Unit,
     onDeleteAll: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -529,11 +588,10 @@ fun SettingsScreen(
 
         SectionTitle("Appearance")
         Spacer(Modifier.height(10.dp))
-        RadioGroup(value = themeChoice, onValueChange = onThemeChoiceChange) {
+        RadioGroup(value = colorScheme, onValueChange = onColorSchemeChange) {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Radio("System") { Text("System") }
-                Radio("Light") { Text("Light") }
-                Radio("Dark") { Text("Dark") }
+                Radio(value = ColorScheme.Dark) { Text("Dark") }
+                Radio(value = ColorScheme.Light) { Text("Light") }
             }
         }
         Spacer(Modifier.height(24.dp))
